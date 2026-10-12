@@ -85,9 +85,9 @@ interface Note {
 - [x] Export features: Markdown (`.md`), Plain Text (`.txt`), and JSON backup archive.
 
 ### Phase 2: Power-User Controls & Telemetry
-- [ ] **Quick Command Palette (`Ctrl + K` / `Cmd + K`)**: Switch notes, create new note, toggle theme, export.
-- [ ] **Zen / Focus Mode (`F11` or toggle)**: Hides sidebars, leaves just the paper canvas with mechanical ink styling.
-- [ ] **Keyboard Shortcuts**:
+- [x] **Quick Command Palette (`Ctrl + K` / `Cmd + K`)**: Switch notes, create new note, toggle theme, export.
+- [x] **Zen / Focus Mode (`F11` or toggle)**: Hides sidebars, leaves just the paper canvas with mechanical ink styling.
+- [x] **Keyboard Shortcuts**:
   - `Ctrl + N`: New scratchpad note
   - `Ctrl + Shift + F`: Global search
   - `Ctrl + P`: Toggle preview split

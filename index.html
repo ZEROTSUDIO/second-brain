@@ -45,7 +45,7 @@
 <body class="bg-[#FFFFFF] text-[#0A090D] font-body selection:bg-[#7C3AED] selection:text-white flex flex-col h-screen">
 
   <!-- Top System Bar -->
-  <header class="bg-white border-b-2 border-[#0A090D] px-4 py-2 flex items-center justify-between shrink-0 z-20">
+  <header id="system-header" class="bg-white border-b-2 border-[#0A090D] px-4 py-2 flex items-center justify-between shrink-0 z-20">
     <div class="flex items-center gap-3">
       <img src="assets/zerotsudios-logo.png" alt="Zerotsu Logo" class="h-7 w-auto">
       <div class="flex flex-col">
@@ -56,7 +56,18 @@
 
     <!-- Actions & Storage Indicators -->
     <div class="flex items-center gap-2">
-      <span class="badge-lilac text-[10px] hidden sm:inline-block">OFFLINE FIRST</span>
+      <!-- Command Palette Pill Trigger -->
+      <button id="btn-open-palette" class="btn-outline text-xs py-1.5 px-2.5 hidden sm:flex items-center gap-2" title="Command Palette (Ctrl + K)">
+        <span class="font-mono font-bold">PALETTE</span>
+        <span class="badge-lilac text-[9px] py-0 px-1 font-bold">CTRL+K</span>
+      </button>
+
+      <!-- Zen Mode Button -->
+      <button id="btn-toggle-zen" class="btn-outline text-xs py-1.5 px-2.5" title="Toggle Zen / Focus Mode (F11)">
+        ZEN MODE
+      </button>
+
+      <span class="badge-lilac text-[10px] hidden md:inline-block">OFFLINE FIRST</span>
       <button id="btn-new-note" class="btn-purple text-xs py-1.5 px-3">
         + NEW NOTE
       </button>
@@ -68,7 +79,7 @@
 
       <!-- Vault Backup Dropdown/Triggers -->
       <button id="btn-export-vault" class="btn-outline text-xs py-1.5 px-2 hidden sm:inline-block" title="Backup whole vault to JSON">
-        BACKUP VAULT
+        BACKUP
       </button>
       <label class="btn-outline text-xs py-1.5 px-2 cursor-pointer hidden sm:inline-block" title="Restore notes from JSON backup">
         RESTORE
@@ -81,7 +92,7 @@
   <div class="flex-1 flex overflow-hidden">
     
     <!-- LEFT SIDEBAR: Notes Directory -->
-    <aside class="w-80 border-r-2 border-[#0A090D] bg-[#F4F1FA] flex flex-col shrink-0">
+    <aside id="notes-sidebar" class="w-80 border-r-2 border-[#0A090D] bg-[#F4F1FA] flex flex-col shrink-0">
       <div class="title-bar border-b-2 border-[#0A090D] shrink-0">
         <span>ARCHIVE // NOTES</span>
         <span id="notes-count-badge" class="text-[#C06BF0]">0 NOTES</span>
@@ -93,7 +104,7 @@
           type="text" 
           id="search-input" 
           class="input-brutal w-full text-xs" 
-          placeholder="SEARCH NOTES OR TAGS..."
+          placeholder="SEARCH NOTES OR TAGS (CTRL+SHIFT+F)..."
         >
       </div>
 
@@ -104,7 +115,7 @@
     </aside>
 
     <!-- CENTER PANEL: Mechanical Editor Canvas -->
-    <section class="flex-1 flex flex-col bg-white overflow-hidden">
+    <section id="editor-section" class="flex-1 flex flex-col bg-white overflow-hidden">
       <!-- Document Controls & Title Bar -->
       <div class="title-bar border-b-2 border-[#0A090D] flex items-center justify-between shrink-0">
         <div class="flex items-center gap-2 flex-1">
@@ -120,6 +131,7 @@
           <button id="btn-pin-note" class="btn-outline text-[10px] py-0.5 px-2">PIN</button>
           <button id="btn-export-md" class="btn-outline text-[10px] py-0.5 px-2">EXPORT .MD</button>
           <button id="btn-delete-note" class="btn-solid text-[10px] py-0.5 px-2 bg-red-600 hover:bg-red-700 text-white border-red-900">DELETE</button>
+          <button id="btn-exit-zen" class="btn-purple text-[10px] py-0.5 px-2 hidden">EXIT ZEN (ESC)</button>
         </div>
       </div>
 
@@ -159,6 +171,36 @@
       </div>
     </aside>
 
+  </div>
+
+  <!-- COMMAND PALETTE MODAL (Ctrl + K) -->
+  <div id="command-palette-modal" class="modal-overlay hidden">
+    <div class="modal-box max-w-xl w-full">
+      <div class="title-bar flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-[#C06BF0] inline-block animate-pulse"></span>
+          <span>COMMAND_PALETTE // CTRL+K</span>
+        </div>
+        <button id="btn-close-palette" class="font-mono text-base font-bold leading-none hover:text-[#7C3AED]">&times;</button>
+      </div>
+      <div class="p-4 bg-[#FFFFFF]">
+        <input 
+          type="text" 
+          id="palette-search-input" 
+          class="input-brutal w-full text-sm mb-3" 
+          placeholder="Type a command or note title..."
+          autocomplete="off"
+        >
+        <div class="flex items-center justify-between text-[10px] font-mono text-[#4B4556] mb-2 px-1">
+          <span>&uarr;&darr; NAVIGATE</span>
+          <span>ENTER SELECT</span>
+          <span>ESC CLOSE</span>
+        </div>
+        <div id="palette-results-list" class="max-h-72 overflow-y-auto space-y-1.5 border-t-2 border-[#0A090D] pt-2">
+          <!-- Commands & Notes dynamically rendered -->
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Zerotsudios Micro-interactions & Toast System -->

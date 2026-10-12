@@ -1,11 +1,14 @@
 /**
  * SECOND BRAIN // Workspace Controller & Application Logic
- * Zerotsudios UI Neobrutalist Markdown Workspace
+ * Zerotsudios UI Neobrutalist Markdown Workspace (Phase 1 & Phase 2)
  */
 
 let currentNoteId = null;
 let saveTimeout = null;
 let allNotes = [];
+let isZenMode = false;
+let paletteItems = [];
+let paletteSelectedIndex = 0;
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -20,8 +23,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    // 3. Setup DOM references
+    // 3. Setup DOM references and events
     bindEventListeners();
+    bindKeyboardShortcuts();
 
     // 4. Load notes
     await refreshNotesList();
@@ -47,10 +51,13 @@ function bindEventListeners() {
   const exportVaultBtn = document.getElementById('btn-export-vault');
   const togglePreviewBtn = document.getElementById('btn-toggle-preview');
   const importVaultInput = document.getElementById('import-vault-input');
+  const openPaletteBtn = document.getElementById('btn-open-palette');
+  const closePaletteBtn = document.getElementById('btn-close-palette');
+  const toggleZenBtn = document.getElementById('btn-toggle-zen');
+  const exitZenBtn = document.getElementById('btn-exit-zen');
+  const paletteInput = document.getElementById('palette-search-input');
 
-  if (newNoteBtn) {
-    newNoteBtn.addEventListener('click', handleCreateNewNote);
-  }
+  if (newNoteBtn) newNoteBtn.addEventListener('click', handleCreateNewNote);
 
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
@@ -58,47 +65,264 @@ function bindEventListeners() {
     });
   }
 
-  if (titleInput) {
-    titleInput.addEventListener('input', handleEditorInput);
-  }
-
-  if (contentTextarea) {
-    contentTextarea.addEventListener('input', handleEditorInput);
-  }
-
-  if (pinBtn) {
-    pinBtn.addEventListener('click', handleTogglePin);
-  }
-
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', handleDeleteNote);
-  }
-
-  if (exportMdBtn) {
-    exportMdBtn.addEventListener('click', handleExportNoteMd);
-  }
-
-  if (exportVaultBtn) {
-    exportVaultBtn.addEventListener('click', handleExportVault);
-  }
-
-  if (importVaultInput) {
-    importVaultInput.addEventListener('change', handleImportVault);
-  }
+  if (titleInput) titleInput.addEventListener('input', handleEditorInput);
+  if (contentTextarea) contentTextarea.addEventListener('input', handleEditorInput);
+  if (pinBtn) pinBtn.addEventListener('click', handleTogglePin);
+  if (deleteBtn) deleteBtn.addEventListener('click', handleDeleteNote);
+  if (exportMdBtn) exportMdBtn.addEventListener('click', handleExportNoteMd);
+  if (exportVaultBtn) exportVaultBtn.addEventListener('click', handleExportVault);
+  if (importVaultInput) importVaultInput.addEventListener('change', handleImportVault);
 
   if (togglePreviewBtn) {
-    togglePreviewBtn.addEventListener('click', () => {
-      const previewPanel = document.getElementById('preview-panel');
-      if (previewPanel) {
-        previewPanel.classList.toggle('hidden');
-        Zerotsudios.toast(
-          previewPanel.classList.contains('hidden') ? 'PREVIEW HIDDEN' : 'PREVIEW ACTIVE',
-          'info'
-        );
-      }
-    });
+    togglePreviewBtn.addEventListener('click', togglePreviewPanel);
+  }
+
+  if (openPaletteBtn) {
+    openPaletteBtn.addEventListener('click', openCommandPalette);
+  }
+
+  if (closePaletteBtn) {
+    closePaletteBtn.addEventListener('click', closeCommandPalette);
+  }
+
+  if (toggleZenBtn) {
+    toggleZenBtn.addEventListener('click', toggleZenMode);
+  }
+
+  if (exitZenBtn) {
+    exitZenBtn.addEventListener('click', toggleZenMode);
+  }
+
+  if (paletteInput) {
+    paletteInput.addEventListener('input', handlePaletteSearch);
+    paletteInput.addEventListener('keydown', handlePaletteKeyNav);
   }
 }
+
+function bindKeyboardShortcuts() {
+  window.addEventListener('keydown', (e) => {
+    const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+
+    // Ctrl + K: Command Palette
+    if (isCtrlOrCmd && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      const modal = document.getElementById('command-palette-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        closeCommandPalette();
+      } else {
+        openCommandPalette();
+      }
+      return;
+    }
+
+    // Escape: Close Command Palette or Exit Zen Mode
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('command-palette-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        closeCommandPalette();
+        return;
+      }
+      if (isZenMode) {
+        toggleZenMode();
+        return;
+      }
+    }
+
+    // Ctrl + N: New Note
+    if (isCtrlOrCmd && !e.shiftKey && e.key.toLowerCase() === 'n') {
+      e.preventDefault();
+      handleCreateNewNote();
+      return;
+    }
+
+    // Ctrl + S: Force Immediate Save
+    if (isCtrlOrCmd && e.key.toLowerCase() === 's') {
+      e.preventDefault();
+      clearTimeout(saveTimeout);
+      saveCurrentNote().then(() => {
+        Zerotsudios.toast('SNAPSHOT SAVED // LOCAL', 'success');
+      });
+      return;
+    }
+
+    // Ctrl + P: Toggle Live Preview Split
+    if (isCtrlOrCmd && !e.shiftKey && e.key.toLowerCase() === 'p') {
+      e.preventDefault();
+      togglePreviewPanel();
+      return;
+    }
+
+    // Ctrl + Shift + F: Global Search
+    if (isCtrlOrCmd && e.shiftKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+      return;
+    }
+
+    // F11: Zen / Focus Mode
+    if (e.key === 'F11') {
+      e.preventDefault();
+      toggleZenMode();
+      return;
+    }
+  });
+}
+
+function togglePreviewPanel() {
+  const previewPanel = document.getElementById('preview-panel');
+  if (previewPanel) {
+    previewPanel.classList.toggle('hidden');
+    Zerotsudios.toast(
+      previewPanel.classList.contains('hidden') ? 'PREVIEW COLLAPSED' : 'PREVIEW EXPANDED',
+      'info'
+    );
+  }
+}
+
+function toggleZenMode() {
+  isZenMode = !isZenMode;
+  document.body.classList.toggle('zen-mode', isZenMode);
+
+  const exitZenBtn = document.getElementById('btn-exit-zen');
+  if (exitZenBtn) {
+    exitZenBtn.classList.toggle('hidden', !isZenMode);
+  }
+
+  Zerotsudios.toast(
+    isZenMode ? 'ZEN MODE ACTIVE // DISTRACTION-FREE' : 'ZEN MODE DEACTIVATED',
+    isZenMode ? 'success' : 'info'
+  );
+}
+
+/* ---------------- COMMAND PALETTE LOGIC ---------------- */
+
+function openCommandPalette() {
+  const modal = document.getElementById('command-palette-modal');
+  const input = document.getElementById('palette-search-input');
+  if (!modal || !input) return;
+
+  modal.classList.remove('hidden');
+  input.value = '';
+  paletteSelectedIndex = 0;
+  buildPaletteItems('');
+  input.focus();
+}
+
+function closeCommandPalette() {
+  const modal = document.getElementById('command-palette-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function buildPaletteItems(filterText = '') {
+  const q = filterText.toLowerCase();
+
+  // Standard commands
+  const defaultCommands = [
+    { type: 'command', title: 'New Note', icon: '📝', shortcut: 'Ctrl + N', action: () => handleCreateNewNote() },
+    { type: 'command', title: 'Toggle Zen / Focus Mode', icon: '🧘', shortcut: 'F11', action: () => toggleZenMode() },
+    { type: 'command', title: 'Toggle Preview Panel', icon: '👁️', shortcut: 'Ctrl + P', action: () => togglePreviewPanel() },
+    { type: 'command', title: 'Export Current Note (.md)', icon: '💾', shortcut: '', action: () => handleExportNoteMd() },
+    { type: 'command', title: 'Backup Vault (.json)', icon: '📦', shortcut: '', action: () => handleExportVault() },
+    { type: 'command', title: 'Focus Search Bar', icon: '🔍', shortcut: 'Ctrl + Shift + F', action: () => document.getElementById('search-input')?.focus() }
+  ];
+
+  // Notes list items
+  const noteItems = allNotes.map(n => ({
+    type: 'note',
+    id: n.id,
+    title: n.title || 'UNTITLED NOTE',
+    icon: n.isPinned ? '📌' : '📄',
+    shortcut: `${n.wordCount || 0}W`,
+    action: () => selectNote(n.id)
+  }));
+
+  const combined = [...defaultCommands, ...noteItems];
+
+  paletteItems = combined.filter(item => {
+    if (!q) return true;
+    return item.title.toLowerCase().includes(q) || (item.shortcut && item.shortcut.toLowerCase().includes(q));
+  });
+
+  if (paletteSelectedIndex >= paletteItems.length) {
+    paletteSelectedIndex = Math.max(0, paletteItems.length - 1);
+  }
+
+  renderPaletteResults();
+}
+
+function renderPaletteResults() {
+  const list = document.getElementById('palette-results-list');
+  if (!list) return;
+
+  list.innerHTML = '';
+
+  if (paletteItems.length === 0) {
+    list.innerHTML = `
+      <div class="p-3 text-center text-xs font-mono text-[#0A090D] bg-[#F4F1FA] border border-[#0A090D]">
+        NO MATCHING COMMANDS OR NOTES
+      </div>
+    `;
+    return;
+  }
+
+  paletteItems.forEach((item, idx) => {
+    const isSelected = idx === paletteSelectedIndex;
+    const div = document.createElement('div');
+    div.className = `palette-item flex items-center justify-between p-2 border border-[#0A090D] text-xs font-mono select-none ${isSelected ? 'selected' : 'bg-white'}`;
+
+    div.innerHTML = `
+      <div class="flex items-center gap-2 truncate">
+        <span>${item.icon}</span>
+        <span class="font-bold truncate">${escapeHtml(item.title)}</span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        ${item.shortcut ? `<span class="palette-badge font-mono text-[10px] px-1.5 py-0.5 bg-[#F4F1FA] border border-[#0A090D] text-[#0A090D]">${escapeHtml(item.shortcut)}</span>` : ''}
+        <span class="palette-meta text-[9px] uppercase text-[#7C3AED] font-bold">${item.type}</span>
+      </div>
+    `;
+
+    div.addEventListener('click', () => {
+      closeCommandPalette();
+      item.action();
+    });
+
+    list.appendChild(div);
+  });
+}
+
+function handlePaletteSearch(e) {
+  paletteSelectedIndex = 0;
+  buildPaletteItems(e.target.value.trim());
+}
+
+function handlePaletteKeyNav(e) {
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (paletteItems.length > 0) {
+      paletteSelectedIndex = (paletteSelectedIndex + 1) % paletteItems.length;
+      renderPaletteResults();
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (paletteItems.length > 0) {
+      paletteSelectedIndex = (paletteSelectedIndex - 1 + paletteItems.length) % paletteItems.length;
+      renderPaletteResults();
+    }
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (paletteItems[paletteSelectedIndex]) {
+      const selected = paletteItems[paletteSelectedIndex];
+      closeCommandPalette();
+      selected.action();
+    }
+  }
+}
+
+/* ---------------- NOTE DATA & WORKSPACE ---------------- */
 
 async function refreshNotesList() {
   allNotes = await window.SecondBrainDB.getAllNotes();
