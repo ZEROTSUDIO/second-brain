@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SECOND-BRAIN // Zerotsudios Personal App</title>
+  <title>SECOND-BRAIN // Offline-First Markdown Knowledge Base</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -35,158 +35,137 @@
     }
   </script>
 
-  <!-- Zerotsudios UI Core Stylesheet -->
+  <!-- Marked.js Markdown Compiler -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Zerotsudios UI Core Stylesheet & App Custom Overrides -->
   <link rel="stylesheet" href="css/zerotsudios.css">
+  <link rel="stylesheet" href="css/app.css">
 </head>
-<body class="bg-[#FFFFFF] text-[#0A090D] font-body selection:bg-[#7C3AED] selection:text-white pb-24">
+<body class="bg-[#FFFFFF] text-[#0A090D] font-body selection:bg-[#7C3AED] selection:text-white flex flex-col h-screen">
 
-  <!-- Print Registration Marks -->
-  <div class="print-mark top-3 left-4 flex items-center gap-2">
-    <div class="crosshair"></div>
-    <span>ZEROTSU // SECOND-BRAIN</span>
-  </div>
-  <div class="print-mark top-3 right-4 flex items-center gap-2">
-    <span>REV. 1.0</span>
-    <div class="crosshair"></div>
-  </div>
+  <!-- Top System Bar -->
+  <header class="bg-white border-b-2 border-[#0A090D] px-4 py-2 flex items-center justify-between shrink-0 z-20">
+    <div class="flex items-center gap-3">
+      <img src="assets/zerotsudios-logo.png" alt="Zerotsu Logo" class="h-7 w-auto">
+      <div class="flex flex-col">
+        <span class="font-display text-base tracking-wide uppercase leading-none">ZEROTSU - STUDIO</span>
+        <span class="font-mono text-[9px] text-[#7C3AED] tracking-widest font-bold">SECOND-BRAIN // DOSSIER VAULT</span>
+      </div>
+    </div>
 
-  <!-- Sticky Top Navigation -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-2 border-[#0A090D]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <img src="assets/zerotsudios-logo.png" alt="Zerotsu Logo" class="h-8 w-auto">
-        <div class="flex flex-col">
-          <span class="font-display text-base tracking-wide uppercase leading-none">ZEROTSU - STUDIO</span>
-          <span class="font-mono text-[9px] text-[#7C3AED] tracking-widest font-bold">SECOND-BRAIN</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <span class="badge-lilac text-[10px]">ACTIVE PROJECT</span>
-        <button onclick="Zerotsudios.toast('STATUS: LIVE', 'success')" class="btn-solid text-xs py-1.5 px-3">
-          PING STATUS
-        </button>
-      </div>
+    <!-- Actions & Storage Indicators -->
+    <div class="flex items-center gap-2">
+      <span class="badge-lilac text-[10px] hidden sm:inline-block">OFFLINE FIRST</span>
+      <button id="btn-new-note" class="btn-purple text-xs py-1.5 px-3">
+        + NEW NOTE
+      </button>
+      <button id="btn-toggle-preview" class="btn-solid text-xs py-1.5 px-3">
+        TOGGLE PREVIEW
+      </button>
+
+      <div class="h-5 w-[2px] bg-[#0A090D] mx-1 hidden sm:block"></div>
+
+      <!-- Vault Backup Dropdown/Triggers -->
+      <button id="btn-export-vault" class="btn-outline text-xs py-1.5 px-2 hidden sm:inline-block" title="Backup whole vault to JSON">
+        BACKUP VAULT
+      </button>
+      <label class="btn-outline text-xs py-1.5 px-2 cursor-pointer hidden sm:inline-block" title="Restore notes from JSON backup">
+        RESTORE
+        <input type="file" id="import-vault-input" accept=".json" class="hidden">
+      </label>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-10 space-y-10">
-
-    <!-- Dossier Header Card -->
-    <div class="bg-white border-2 border-[#0A090D] shadow-[8px_8px_0_#0A090D] overflow-hidden">
-      <div class="title-bar">
-        <span>PROJECT_DOSSIER // 01</span>
-        <span class="text-[#C06BF0]">STATUS: SCAFFOLDED</span>
+  <!-- 3-Column Mechanical Workspace Grid -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- LEFT SIDEBAR: Notes Directory -->
+    <aside class="w-80 border-r-2 border-[#0A090D] bg-[#F4F1FA] flex flex-col shrink-0">
+      <div class="title-bar border-b-2 border-[#0A090D] shrink-0">
+        <span>ARCHIVE // NOTES</span>
+        <span id="notes-count-badge" class="text-[#C06BF0]">0 NOTES</span>
       </div>
-      <div class="p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div>
-          <span class="badge-purple mb-3 inline-block">PERSONAL APP</span>
-          <h1 class="font-display text-4xl sm:text-5xl uppercase tracking-tight text-[#0A090D] leading-none mb-3">
-            SECOND-BRAIN
-          </h1>
-          <p class="font-body text-[#4B4556] text-sm sm:text-base max-w-xl leading-relaxed">
-            Personal application starter powered by the <strong>Zerotsudios UI</strong> design system. Ready for your features, API integrations, and components.
-          </p>
-        </div>
-        <div class="flex flex-wrap gap-3">
-          <button data-modal-open="app-modal" class="btn-solid">LAUNCH DIALOG</button>
-          <button onclick="Zerotsudios.toast('ACTION TRIGGERED', 'info')" class="btn-purple">ACTION TRIGGER</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- 3-Column Content Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      
-      <!-- Card 1 -->
-      <div class="bg-white border-2 border-[#0A090D] shadow-[6px_6px_0_#0A090D] overflow-hidden flex flex-col justify-between">
-        <div class="title-bar">
-          <span>MODULE // 01</span>
-          <span class="text-[#C06BF0]">READY</span>
+      <!-- Quick Search Bar -->
+      <div class="p-3 border-b-2 border-[#0A090D] bg-white shrink-0">
+        <input 
+          type="text" 
+          id="search-input" 
+          class="input-brutal w-full text-xs" 
+          placeholder="SEARCH NOTES OR TAGS..."
+        >
+      </div>
+
+      <!-- Scrollable Note List -->
+      <div id="notes-list" class="flex-1 overflow-y-auto p-3">
+        <!-- Rendered dynamically -->
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: Mechanical Editor Canvas -->
+    <section class="flex-1 flex flex-col bg-white overflow-hidden">
+      <!-- Document Controls & Title Bar -->
+      <div class="title-bar border-b-2 border-[#0A090D] flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2 flex-1">
+          <span class="w-2.5 h-2.5 bg-[#7C3AED] inline-block"></span>
+          <input 
+            type="text" 
+            id="note-title-input" 
+            class="bg-transparent border-none outline-none font-display text-sm tracking-wide uppercase text-white flex-1 focus:ring-0" 
+            placeholder="NOTE TITLE..."
+          >
         </div>
-        <div class="p-6 flex flex-col flex-1 justify-between">
-          <div>
-            <div class="badge-lilac mb-3">TELEMETRY</div>
-            <h3 class="font-display text-2xl uppercase mb-2">Metrics &amp; Stats</h3>
-            <p class="font-body text-xs text-[#4B4556] leading-relaxed mb-4">
-              Real-time monitoring panel and HUD stat progress indicators.
-            </p>
-          </div>
-          <div class="stat-bar mt-2">
-            <div class="stat-fill hud-bar-fill bg-[#7C3AED]" data-percent="85"></div>
-          </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-pin-note" class="btn-outline text-[10px] py-0.5 px-2">PIN</button>
+          <button id="btn-export-md" class="btn-outline text-[10px] py-0.5 px-2">EXPORT .MD</button>
+          <button id="btn-delete-note" class="btn-solid text-[10px] py-0.5 px-2 bg-red-600 hover:bg-red-700 text-white border-red-900">DELETE</button>
         </div>
       </div>
 
-      <!-- Card 2 -->
-      <div class="bg-white border-2 border-[#0A090D] shadow-[6px_6px_0_#0A090D] overflow-hidden flex flex-col justify-between">
-        <div class="title-bar">
-          <span>MODULE // 02</span>
-          <span class="text-[#C06BF0]">CONFIG</span>
-        </div>
-        <div class="p-6 flex flex-col flex-1 justify-between">
-          <div>
-            <div class="badge-purple mb-3">CONTROLS</div>
-            <h3 class="font-display text-2xl uppercase mb-2">Parameters</h3>
-            <p class="font-body text-xs text-[#4B4556] leading-relaxed mb-4">
-              Neobrutalist form inputs, custom checkboxes, and toggle switches.
-            </p>
-          </div>
-          <div class="pt-2">
-            <input type="text" class="input-brutal w-full" placeholder="Enter parameter...">
-          </div>
-        </div>
+      <!-- Scratchpad Monospace Textarea -->
+      <div class="flex-1 flex p-4 overflow-hidden">
+        <textarea 
+          id="note-content-textarea" 
+          class="w-full h-full resize-none border-2 border-[#0A090D] p-4 font-mono text-sm leading-relaxed text-[#0A090D] bg-white shadow-[4px_4px_0_#0A090D] focus:outline-none focus:ring-2 focus:ring-[#7C3AED]"
+          placeholder="Start writing markdown content here..."
+        ></textarea>
       </div>
 
-      <!-- Card 3 -->
-      <div class="panel-dark overflow-hidden flex flex-col justify-between shadow-[6px_6px_0_#7C3AED]">
-        <div class="title-bar-dark">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 bg-[#C06BF0] inline-block animate-pulse"></span>
-            <span>TERMINAL // 03</span>
-          </div>
-          <span class="text-[#C06BF0]">SHELL</span>
+      <!-- Bottom Telemetry HUD Status Strip -->
+      <div class="panel-dark border-t-2 border-[#0A090D] px-4 py-2 flex items-center justify-between shrink-0 font-mono text-xs">
+        <div class="flex items-center gap-4 text-[#DDD6FE]">
+          <span id="telemetry-word-count">0 WORDS</span>
+          <span class="text-[#38225C]">/</span>
+          <span id="telemetry-char-count">0 CHARS</span>
+          <span class="text-[#38225C]">/</span>
+          <span id="telemetry-read-time">1 MIN READ</span>
         </div>
-        <div class="p-6 flex flex-col flex-1 justify-between">
-          <div>
-            <div class="badge-lilac mb-3">OBSIDIAN</div>
-            <h3 class="font-display text-2xl text-white uppercase mb-2">Terminal Log</h3>
-            <p class="font-body text-xs text-[#DDD6FE] leading-relaxed mb-4">
-              High-contrast terminal output container with lavender mist typography.
-            </p>
-          </div>
-          <div class="font-mono text-xs text-[#4EE085] pt-2 border-t border-[#38225C]">
-            &gt; SYSTEM READY // 200 OK
-          </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-[#4EE085] rounded-full inline-block"></span>
+          <span id="save-status-text" class="text-[#4EE085] font-bold">SAVED // LOCAL (IDB)</span>
         </div>
       </div>
+    </section>
 
-    </div>
-
-  </main>
-
-  <!-- Interactive Modal Dialog -->
-  <div id="app-modal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="title-bar">
-        <span>SECURITY // DIALOG</span>
-        <button data-modal-close class="font-mono text-base font-bold leading-none hover:text-[#7C3AED]">&times;</button>
+    <!-- RIGHT PANEL: Live Compiled Markdown Dossier (Collapsible) -->
+    <aside id="preview-panel" class="w-96 border-l-2 border-[#0A090D] bg-white flex flex-col shrink-0 overflow-hidden">
+      <div class="title-bar border-b-2 border-[#0A090D] shrink-0">
+        <span>PREVIEW // LIVE DOSSIER</span>
+        <span class="text-[#C06BF0]">COMPILED</span>
       </div>
-      <div class="p-6 space-y-4">
-        <div class="badge-lilac">CONFIRMATION</div>
-        <h3 class="font-display text-2xl uppercase">Confirm Operation</h3>
-        <p class="font-body text-sm text-[#4B4556] leading-relaxed">
-          This is your pre-wired Zerotsudios neobrutalist modal dialog. Ready for forms or triggers.
-        </p>
-        <div class="flex justify-end gap-3 pt-4 border-t-2 border-[#0A090D]">
-          <button data-modal-close class="btn-outline text-xs py-2 px-4">CANCEL</button>
-          <button data-modal-close onclick="Zerotsudios.toast('OPERATION CONFIRMED', 'success')" class="btn-solid text-xs py-2 px-4">CONFIRM</button>
-        </div>
+      <div id="markdown-preview-output" class="markdown-body flex-1 overflow-y-auto p-6 bg-white">
+        <!-- Rendered markdown preview -->
       </div>
-    </div>
+    </aside>
+
   </div>
 
-  <!-- Micro-interactions Script -->
+  <!-- Zerotsudios Micro-interactions & Toast System -->
   <script src="js/zerotsudios.js"></script>
+  <!-- Storage Engine -->
+  <script src="js/db.js"></script>
+  <!-- Workspace Controller -->
+  <script src="js/app.js"></script>
 </body>
 </html>

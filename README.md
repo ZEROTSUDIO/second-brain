@@ -76,13 +76,13 @@ interface Note {
 
 ### Phase 1: Local-First Core & Zerotsudios Interface (Current)
 - [x] Project scaffolded with Zerotsudios UI CSS, JS, and asset pipeline.
-- [ ] Clean three-column mechanical layout:
+- [x] Clean three-column mechanical layout:
   - **Left Sidebar**: Vault selector, folder/tag tree, pinned notes, quick search.
   - **Center Canvas**: Markdown editor (monospace / clean typography) with live line/word telemetry.
   - **Right Panel (Collapsible)**: Live compiled preview or document metadata dossier.
-- [ ] IndexedDB persistence layer (auto-save with debounce).
-- [ ] Fast fuzzy search (`title`, `content`, `tags`).
-- [ ] Export features: Markdown (`.md`), Plain Text (`.txt`), and JSON backup archive.
+- [x] IndexedDB persistence layer (auto-save with debounce).
+- [x] Fast fuzzy search (`title`, `content`, `tags`).
+- [x] Export features: Markdown (`.md`), Plain Text (`.txt`), and JSON backup archive.
 
 ### Phase 2: Power-User Controls & Telemetry
 - [ ] **Quick Command Palette (`Ctrl + K` / `Cmd + K`)**: Switch notes, create new note, toggle theme, export.
