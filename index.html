@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SECOND-BRAIN // Zerotsudios Personal App</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#FFFFFF',
+            dim: '#F4F1FA',
+            ink: '#0A090D',
+            obsidian: '#0A0812',
+            purple: {
+              DEFAULT: '#7C3AED',
+              deep: '#5B1AA0',
+              mid: '#9333EA',
+              light: '#C06BF0',
+              soft: '#DDD6FE',
+              ink: '#1B0E33'
+            }
+          },
+          fontFamily: {
+            display: ['Anton', 'sans-serif'],
+            mono: ['Space Mono', 'monospace'],
+            body: ['Archivo', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Zerotsudios UI Core Stylesheet -->
+  <link rel="stylesheet" href="css/zerotsudios.css">
+</head>
+<body class="bg-[#FFFFFF] text-[#0A090D] font-body selection:bg-[#7C3AED] selection:text-white pb-24">
+
+  <!-- Print Registration Marks -->
+  <div class="print-mark top-3 left-4 flex items-center gap-2">
+    <div class="crosshair"></div>
+    <span>ZEROTSU // SECOND-BRAIN</span>
+  </div>
+  <div class="print-mark top-3 right-4 flex items-center gap-2">
+    <span>REV. 1.0</span>
+    <div class="crosshair"></div>
+  </div>
+
+  <!-- Sticky Top Navigation -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-2 border-[#0A090D]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="assets/zerotsudios-logo.png" alt="Zerotsu Logo" class="h-8 w-auto">
+        <div class="flex flex-col">
+          <span class="font-display text-base tracking-wide uppercase leading-none">ZEROTSU - STUDIO</span>
+          <span class="font-mono text-[9px] text-[#7C3AED] tracking-widest font-bold">SECOND-BRAIN</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="badge-lilac text-[10px]">ACTIVE PROJECT</span>
+        <button onclick="Zerotsudios.toast('STATUS: LIVE', 'success')" class="btn-solid text-xs py-1.5 px-3">
+          PING STATUS
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-10 space-y-10">
+
+    <!-- Dossier Header Card -->
+    <div class="bg-white border-2 border-[#0A090D] shadow-[8px_8px_0_#0A090D] overflow-hidden">
+      <div class="title-bar">
+        <span>PROJECT_DOSSIER // 01</span>
+        <span class="text-[#C06BF0]">STATUS: SCAFFOLDED</span>
+      </div>
+      <div class="p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <span class="badge-purple mb-3 inline-block">PERSONAL APP</span>
+          <h1 class="font-display text-4xl sm:text-5xl uppercase tracking-tight text-[#0A090D] leading-none mb-3">
+            SECOND-BRAIN
+          </h1>
+          <p class="font-body text-[#4B4556] text-sm sm:text-base max-w-xl leading-relaxed">
+            Personal application starter powered by the <strong>Zerotsudios UI</strong> design system. Ready for your features, API integrations, and components.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button data-modal-open="app-modal" class="btn-solid">LAUNCH DIALOG</button>
+          <button onclick="Zerotsudios.toast('ACTION TRIGGERED', 'info')" class="btn-purple">ACTION TRIGGER</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-Column Content Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Card 1 -->
+      <div class="bg-white border-2 border-[#0A090D] shadow-[6px_6px_0_#0A090D] overflow-hidden flex flex-col justify-between">
+        <div class="title-bar">
+          <span>MODULE // 01</span>
+          <span class="text-[#C06BF0]">READY</span>
+        </div>
+        <div class="p-6 flex flex-col flex-1 justify-between">
+          <div>
+            <div class="badge-lilac mb-3">TELEMETRY</div>
+            <h3 class="font-display text-2xl uppercase mb-2">Metrics &amp; Stats</h3>
+            <p class="font-body text-xs text-[#4B4556] leading-relaxed mb-4">
+              Real-time monitoring panel and HUD stat progress indicators.
+            </p>
+          </div>
+          <div class="stat-bar mt-2">
+            <div class="stat-fill hud-bar-fill bg-[#7C3AED]" data-percent="85"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-white border-2 border-[#0A090D] shadow-[6px_6px_0_#0A090D] overflow-hidden flex flex-col justify-between">
+        <div class="title-bar">
+          <span>MODULE // 02</span>
+          <span class="text-[#C06BF0]">CONFIG</span>
+        </div>
+        <div class="p-6 flex flex-col flex-1 justify-between">
+          <div>
+            <div class="badge-purple mb-3">CONTROLS</div>
+            <h3 class="font-display text-2xl uppercase mb-2">Parameters</h3>
+            <p class="font-body text-xs text-[#4B4556] leading-relaxed mb-4">
+              Neobrutalist form inputs, custom checkboxes, and toggle switches.
+            </p>
+          </div>
+          <div class="pt-2">
+            <input type="text" class="input-brutal w-full" placeholder="Enter parameter...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="panel-dark overflow-hidden flex flex-col justify-between shadow-[6px_6px_0_#7C3AED]">
+        <div class="title-bar-dark">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 bg-[#C06BF0] inline-block animate-pulse"></span>
+            <span>TERMINAL // 03</span>
+          </div>
+          <span class="text-[#C06BF0]">SHELL</span>
+        </div>
+        <div class="p-6 flex flex-col flex-1 justify-between">
+          <div>
+            <div class="badge-lilac mb-3">OBSIDIAN</div>
+            <h3 class="font-display text-2xl text-white uppercase mb-2">Terminal Log</h3>
+            <p class="font-body text-xs text-[#DDD6FE] leading-relaxed mb-4">
+              High-contrast terminal output container with lavender mist typography.
+            </p>
+          </div>
+          <div class="font-mono text-xs text-[#4EE085] pt-2 border-t border-[#38225C]">
+            &gt; SYSTEM READY // 200 OK
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Interactive Modal Dialog -->
+  <div id="app-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="title-bar">
+        <span>SECURITY // DIALOG</span>
+        <button data-modal-close class="font-mono text-base font-bold leading-none hover:text-[#7C3AED]">&times;</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="badge-lilac">CONFIRMATION</div>
+        <h3 class="font-display text-2xl uppercase">Confirm Operation</h3>
+        <p class="font-body text-sm text-[#4B4556] leading-relaxed">
+          This is your pre-wired Zerotsudios neobrutalist modal dialog. Ready for forms or triggers.
+        </p>
+        <div class="flex justify-end gap-3 pt-4 border-t-2 border-[#0A090D]">
+          <button data-modal-close class="btn-outline text-xs py-2 px-4">CANCEL</button>
+          <button data-modal-close onclick="Zerotsudios.toast('OPERATION CONFIRMED', 'success')" class="btn-solid text-xs py-2 px-4">CONFIRM</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Micro-interactions Script -->
+  <script src="js/zerotsudios.js"></script>
+</body>
+</html>
